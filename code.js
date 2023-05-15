@@ -43,17 +43,13 @@ function processTransactions(transactions) {
   validateTransactions(transactions);
 
   for (const transaction of transactions) {
-    try {
-      processTransaction(transaction);
-    } catch (error) {
-      showErrorMessage(error.message, error.item);
-    }
+    processTransaction(transaction);
   }
 }
 
 function validateTransactions(transactions) {
   if (isEmpty(transactions)) {
-    const error = new Error("No transactions provided!");
+    const error = new Error('No transactions provided!');
     error.code = 1;
     throw error;
   }
@@ -71,14 +67,12 @@ function showErrorMessage(message, item) {
 }
 
 function processTransaction(transaction) {
-  validateTransaction(transaction);
+  try {
+    validateTransaction(transaction);
 
-  if (usesTransactionMethod(transaction, 'CREDIT_CARD')) {
-    processCreditCardTransaction(transaction);
-  } else if (usesTransactionMethod(transaction, 'PAYPAL')) {
-    processPayPalTransaction(transaction);
-  } else if (usesTransactionMethod(transaction, 'PLAN')) {
-    processPlanTransaction(transaction);
+    processByMethod(transaction);
+  } catch (error) {
+    showErrorMessage(error.message, error.item);
   }
 }
 
@@ -88,14 +82,24 @@ function isOpen(transaction) {
 
 function validateTransaction(transaction) {
   if (!isOpen(transaction)) {
-    const error = new Error("Invalid transaction type!");
+    const error = new Error('Invalid transaction type!');
     throw error;
   }
 
   if (!isPayment(transaction) && !isRefund(transaction)) {
-    const error = new Error("Invalid transaction type!");
+    const error = new Error('Invalid transaction type!');
     error.item = transaction;
     throw error;
+  }
+}
+
+function processByMethod(transaction) {
+  if (usesTransactionMethod(transaction, "CREDIT_CARD")) {
+    processCreditCardTransaction(transaction);
+  } else if (usesTransactionMethod(transaction, "PAYPAL")) {
+    processPayPalTransaction(transaction);
+  } else if (usesTransactionMethod(transaction, "PLAN")) {
+    processPlanTransaction(transaction);
   }
 }
 
