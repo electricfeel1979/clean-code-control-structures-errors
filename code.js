@@ -40,11 +40,7 @@ function main() {
 }
 
 function processTransactions(transactions) {
-  if (isEmpty(transactions)) {
-    const error = new Error('No transactions provided!');
-    error.code = 1;
-    throw error;
-  }
+  validateTransactions(transactions);
 
   for (const transaction of transactions) {
     try {
@@ -52,6 +48,14 @@ function processTransactions(transactions) {
     } catch (error) {
       showErrorMessage(error.message, error.item);
     }
+  }
+}
+
+function validateTransactions(transactions) {
+  if (isEmpty(transactions)) {
+    const error = new Error("No transactions provided!");
+    error.code = 1;
+    throw error;
   }
 }
 
@@ -67,16 +71,7 @@ function showErrorMessage(message, item) {
 }
 
 function processTransaction(transaction) {
-  if (!isOpen(transaction)) {
-    const error = new Error('Invalid transaction type!');
-    throw error;
-  }
-
-  if (!isPayment(transaction) && !isRefund(transaction)) {
-    const error = new Error('Invalid transaction type!')
-    error.item = transaction;
-    throw error;
-  }
+  validateTransaction(transaction);
 
   if (usesTransactionMethod(transaction, 'CREDIT_CARD')) {
     processCreditCardTransaction(transaction);
@@ -89,6 +84,19 @@ function processTransaction(transaction) {
 
 function isOpen(transaction) {
   return transaction.status === 'OPEN';
+}
+
+function validateTransaction(transaction) {
+  if (!isOpen(transaction)) {
+    const error = new Error("Invalid transaction type!");
+    throw error;
+  }
+
+  if (!isPayment(transaction) && !isRefund(transaction)) {
+    const error = new Error("Invalid transaction type!");
+    error.item = transaction;
+    throw error;
+  }
 }
 
 function usesTransactionMethod(transaction, method) {
